@@ -2,24 +2,29 @@
 <html lang="en">
 <head>
     <title>Apero: API Viewer for RISM Online</title>
-<!--    <script defer src="./apero.js"></script>-->
-    <script type="module">
-        import { Apero } from "./apero.js";
-
-        const params = new URLSearchParams(window.location.search);
-        const fileUrl = params.get("url");
-
-        if (fileUrl)
-        {
-            let apero = new Apero("apero-wrapper", {
-                url: fileUrl,
-            });
+    <script src="./apero.js"></script>
+    <style>
+        .elmsh-json-s {
+            text-wrap: wrap;
         }
-        else
-        {
-            document.getElementById("apero-wrapper").innerText = "You must specify a URL parameter."
-        }
+    </style>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", () => {
+            const params = new URLSearchParams(window.location.search);
+            const fileUrl = params.get("url");
 
+            if (fileUrl) {
+                let _apero = Elm.Apero.init({
+                    node: document.getElementById("apero-wrapper"),
+                    flags: {
+                        url: fileUrl,
+                        requestType: "json-ld"
+                    }
+                });
+            } else {
+                document.getElementById("apero-wrapper").innerText = "You must specify a URL parameter."
+            }
+        });
     </script>
 </head>
 <body>

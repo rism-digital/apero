@@ -2,7 +2,6 @@ module Core exposing (..)
 
 import Http exposing (emptyBody)
 import Http.Detailed
-import Set exposing (Set)
 
 
 type RequestType
@@ -64,7 +63,6 @@ type Msg
     | UserClickedChooseLanguageRadioButton LanguageSelection
     | UserClickedSomeLanguageCheckboxSelector Bool Language
     | UserClickedErrorMessageDismiss
-    | CodeMirrorSentReadySignal
     | NothingHappened
 
 

@@ -1,7 +1,7 @@
 module Ui.View exposing (..)
 
 import Core exposing (CodeFormat(..), Language(..), LanguageSelection(..), Model, Msg(..), RequestType(..), Response(..), langToLangCode, requestTypeToMimeType)
-import Element exposing (Color, Element, alignRight, alignTop, centerX, centerY, column, el, fill, fromRgb255, height, html, htmlAttribute, inFront, none, padding, paddingXY, paragraph, pointer, px, rgb255, row, spacing, text, textColumn, width)
+import Element exposing (Color, Element, alignRight, alignTop, centerX, centerY, clipY, column, el, fill, fromRgb255, height, html, htmlAttribute, inFront, none, padding, paddingXY, paragraph, pointer, px, rgb255, row, scrollbars, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
@@ -10,6 +10,8 @@ import Element.Input as Input
 import Html as HT
 import Html.Attributes as HA
 import Http.Detailed
+import Json.Print
+import SyntaxHighlight exposing (gitHub, json, noLang, toBlockHtml, useTheme)
 import Template exposing (Template, render, template, withString, withValue)
 
 
@@ -112,23 +114,55 @@ view model =
                 ]
                 [ text ("Record URI: " ++ model.url)
                 ]
-            , row
-                [ width fill
-                , height fill
-                ]
-                [ html <|
-                    HT.iframe
-                        [ HA.src "./codeview.html"
-                        , HA.style "border" "none"
-                        , HA.style "margin" "0"
-                        , HA.style "padding" "0"
-                        , HA.style "height" "calc(100vh - 40px)"
-                        , HA.style "width" "calc(100vw - 300px)"
-                        ]
-                        []
-                ]
+            , viewCode model
             ]
         , viewToolbar model
+        ]
+
+
+viewCode : Model -> Element Msg
+viewCode model =
+    let
+        fmtOutput =
+            case model.serverResponse of
+                Response docString ->
+                    case model.requestType of
+                        JsonLd ->
+                            Json.Print.prettyString { indent = 2, columns = 80 } docString
+                                |> Result.withDefault docString
+                                |> json
+                                |> Result.map (toBlockHtml (Just 1))
+                                |> Result.withDefault (HT.text docString)
+
+                        _ ->
+                            noLang docString
+                                |> Result.map (toBlockHtml (Just 1))
+                                |> Result.withDefault (HT.text docString)
+
+                _ ->
+                    HT.text "Loading ..."
+    in
+    row
+        [ width fill
+        , height fill
+        , clipY
+        ]
+        [ column
+            [ width fill
+            , height fill
+            , Font.size 14
+            , scrollbars
+            , paddingXY 10 0
+            ]
+            [ html <|
+                HT.div
+                    [ HA.style "overflow-wrap" "anywhere"
+                    , HA.style "width" "calc(100vw - 300px)"
+                    ]
+                    [ useTheme gitHub
+                    , fmtOutput
+                    ]
+            ]
         ]
 
 
@@ -184,7 +218,7 @@ viewToolbar model =
                 , viewLanguageRequestSelector model
                 ]
             ]
-        , formatCodeSnippet Python model
+        , formatCodeSnippet CURL model
         ]
 
 

@@ -1,9 +1,8 @@
 module Apero exposing (..)
 
 import Browser exposing (Document)
-import Core exposing (Flags, Language(..), LanguageSelection(..), Model, Msg(..), Response(..), getApiDocument, initBody, requestTypeToMimeType)
+import Core exposing (Flags, Language(..), LanguageSelection(..), Model, Msg(..), Response(..), getApiDocument, initBody)
 import Element exposing (fill, height, padding, width)
-import Ports exposing (OutgoingMessage(..), encodeMessageForPortSend, incomingMessagesHelper, receiveIncomingMessageFromPort, sendOutgoingMessageOnPort)
 import Ui.View
 
 
@@ -14,7 +13,11 @@ init flags =
             initBody flags
     in
     ( body
-    , Cmd.none
+    , getApiDocument
+        { requestType = body.requestType
+        , requestLanguages = body.chosenLanguages
+        }
+        body.url
     )
 
 
@@ -39,9 +42,7 @@ update msg model =
             ( { model
                 | serverResponse = Response response
               }
-            , LoadDocument response (requestTypeToMimeType model.requestType)
-                |> encodeMessageForPortSend
-                |> sendOutgoingMessageOnPort
+            , Cmd.none
             )
 
         ServerRespondedWithApiDocument (Err err) ->
@@ -56,15 +57,6 @@ update msg model =
                 | serverResponse = NoResponseToShow
               }
             , Cmd.none
-            )
-
-        CodeMirrorSentReadySignal ->
-            ( model
-            , getApiDocument
-                { requestType = model.requestType
-                , requestLanguages = model.chosenLanguages
-                }
-                model.url
             )
 
         UserClickedApiFormatRadioButton format ->
@@ -128,10 +120,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch
-        [ incomingMessagesHelper model
-            |> receiveIncomingMessageFromPort
-        ]
+    Sub.none
 
 
 main : Program Flags Model Msg
