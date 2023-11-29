@@ -19914,7 +19914,8 @@ var $author$project$Ui$View$viewCode = function (model) {
 							_List_fromArray(
 								[
 									A2($elm$html$Html$Attributes$style, 'overflow-wrap', 'anywhere'),
-									A2($elm$html$Html$Attributes$style, 'width', 'calc(100vw - 300px)')
+									A2($elm$html$Html$Attributes$style, 'width', 'calc(100vw - 300px)'),
+									A2($elm$html$Html$Attributes$style, 'line-height', '1.4em')
 								]),
 							_List_fromArray(
 								[

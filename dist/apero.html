@@ -7,6 +7,16 @@
         .elmsh-json-s {
             text-wrap: wrap;
         }
+
+        .elmsh-line:before {
+            content: attr(data-elmsh-lc);
+            display: inline-block;
+            text-align: right;
+            width: 40px;
+            padding: 0 20px 0 0;
+            opacity: 0.3;
+        }
+
     </style>
     <script type="text/javascript">
         document.addEventListener("DOMContentLoaded", () => {

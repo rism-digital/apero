@@ -158,6 +158,7 @@ viewCode model =
                 HT.div
                     [ HA.style "overflow-wrap" "anywhere"
                     , HA.style "width" "calc(100vw - 300px)"
+                    , HA.style "line-height" "1.4em"
                     ]
                     [ useTheme gitHub
                     , fmtOutput
