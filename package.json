@@ -4,12 +4,12 @@
     "chokidar-cli": "^3.0.0",
     "elm-esm": "^1.1.4",
     "elm-optimize-level-2": "^0.3.5",
-    "typescript": "^5.3.2",
     "uglify-js": "^3.17.4"
   },
   "scripts": {
-    "develop:build": "chokidar 'src/**/*.elm' -c 'clear && elm-esm make src/Apero.elm --debug --output=dist/apero/apero-core.js'",
-    "production:build": "elm-esm make src/Apero.elm --optimize --output=dist/apero/apero-core.js",
-    "production:deploy": "./optimize.sh src/Apero.elm dist/apero/apero-core.js dist/apero/apero-core.js"
-  }
+    "develop:build": "chokidar 'src/**/*.elm' -c 'clear && elm-esm make src/Apero.elm --debug --output=dist/apero-core.js'",
+    "production:build": "elm-esm make src/Apero.elm --optimize --output=dist/apero-core.js",
+    "production:deploy": "./optimize.sh src/Apero.elm dist/apero-core.js dist/apero-core.js"
+  },
+  "dependencies": {}
 }

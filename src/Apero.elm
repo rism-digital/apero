@@ -1,9 +1,9 @@
 module Apero exposing (..)
 
 import Browser exposing (Document)
-import Core exposing (Flags, Model, Msg(..), Response(..), getApiDocument, initBody)
-import Element
-import Ports exposing (OutgoingMessage(..), encodeMessageForPortSend, sendOutgoingMessageOnPort)
+import Core exposing (Flags, Language(..), LanguageSelection(..), Model, Msg(..), Response(..), getApiDocument, initBody, requestTypeToMimeType)
+import Element exposing (fill, height, padding, width)
+import Ports exposing (OutgoingMessage(..), encodeMessageForPortSend, incomingMessagesHelper, receiveIncomingMessageFromPort, sendOutgoingMessageOnPort)
 import Ui.View
 
 
@@ -14,7 +14,7 @@ init flags =
             initBody flags
     in
     ( body
-    , getApiDocument body.url body.requestType
+    , Cmd.none
     )
 
 
@@ -22,7 +22,12 @@ view : Model -> Document Msg
 view model =
     { title = "Apero"
     , body =
-        [ Element.layout [] (Ui.View.view model)
+        [ Element.layout
+            [ width fill
+            , height fill
+            , padding 0
+            ]
+            (Ui.View.view model)
         ]
     }
 
@@ -34,20 +39,99 @@ update msg model =
             ( { model
                 | serverResponse = Response response
               }
-            , LoadApiResponse response
+            , LoadDocument response (requestTypeToMimeType model.requestType)
                 |> encodeMessageForPortSend
                 |> sendOutgoingMessageOnPort
             )
 
-        ServerRespondedWithApiDocument (Err error) ->
+        ServerRespondedWithApiDocument (Err err) ->
             ( { model
-                | serverResponse = Error error
+                | serverResponse = Error err
               }
             , Cmd.none
             )
 
+        UserClickedErrorMessageDismiss ->
+            ( { model
+                | serverResponse = NoResponseToShow
+              }
+            , Cmd.none
+            )
+
+        CodeMirrorSentReadySignal ->
+            ( model
+            , getApiDocument
+                { requestType = model.requestType
+                , requestLanguages = model.chosenLanguages
+                }
+                model.url
+            )
+
+        UserClickedApiFormatRadioButton format ->
+            ( { model
+                | requestType = format
+              }
+            , getApiDocument
+                { requestType = format
+                , requestLanguages = model.chosenLanguages
+                }
+                model.url
+            )
+
+        UserClickedChooseLanguageRadioButton selection ->
+            let
+                languageList =
+                    case selection of
+                        AllLanguages ->
+                            Nothing
+
+                        SomeLanguages ->
+                            Just [ English ]
+            in
+            ( { model
+                | languageRequest = selection
+                , chosenLanguages = languageList
+              }
+            , getApiDocument
+                { requestType = model.requestType
+                , requestLanguages = languageList
+                }
+                model.url
+            )
+
+        UserClickedSomeLanguageCheckboxSelector checked language ->
+            let
+                newLangList =
+                    Maybe.map
+                        (\languages ->
+                            if checked == False then
+                                List.filter ((/=) language) languages
+
+                            else
+                                language :: languages
+                        )
+                        model.chosenLanguages
+            in
+            ( { model
+                | chosenLanguages = newLangList
+              }
+            , getApiDocument
+                { requestType = model.requestType
+                , requestLanguages = newLangList
+                }
+                model.url
+            )
+
         NothingHappened ->
             ( model, Cmd.none )
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ incomingMessagesHelper model
+            |> receiveIncomingMessageFromPort
+        ]
 
 
 main : Program Flags Model Msg
@@ -56,5 +140,5 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }

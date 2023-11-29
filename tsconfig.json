@@ -3,6 +3,6 @@
     "target": "es2016",
     "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
     "module": "ESNext",
-    "outDir": "./dist/apero"
+    "outDir": "./dist"
   }
 }

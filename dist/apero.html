@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Apero</title>
+    <title>Apero: API Viewer for RISM Online</title>
+<!--    <script defer src="./apero.js"></script>-->
     <script type="module">
-        import { Apero } from "./apero/apero.js";
+        import { Apero } from "./apero.js";
 
         const params = new URLSearchParams(window.location.search);
-        const apiUrl = params.get("url");
+        const fileUrl = params.get("url");
 
-        if (apiUrl)
+        if (fileUrl)
         {
             let apero = new Apero("apero-wrapper", {
-                url: apiUrl,
+                url: fileUrl,
             });
         }
         else
         {
-            document.getElementById("apero-wrapper").innerText = "You must specify the URL parameter."
+            document.getElementById("apero-wrapper").innerText = "You must specify a URL parameter."
         }
 
     </script>
