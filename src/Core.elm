@@ -8,6 +8,7 @@ type RequestType
     = JsonLd
     | Turtle
     | NTriples
+    | MarcXML
 
 
 type Language
@@ -78,6 +79,9 @@ convertResponseType rtype =
         "n-triples" ->
             NTriples
 
+        "marcxml" ->
+            MarcXML
+
         _ ->
             JsonLd
 
@@ -93,6 +97,9 @@ requestTypeToMimeType requestType =
 
         NTriples ->
             "application/n-triples"
+
+        MarcXML ->
+            "application/marcxml+xml"
 
 
 initBody : Flags -> Model

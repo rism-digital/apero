@@ -11,7 +11,7 @@ import Html as HT
 import Html.Attributes as HA
 import Http.Detailed
 import Json.Print
-import SyntaxHighlight exposing (gitHub, json, noLang, toBlockHtml, useTheme)
+import SyntaxHighlight exposing (gitHub, json, noLang, toBlockHtml, useTheme, xml)
 import Template exposing (Template, render, template, withString, withValue)
 
 
@@ -134,6 +134,11 @@ viewCode model =
                                 |> Result.map (toBlockHtml (Just 1))
                                 |> Result.withDefault (HT.text docString)
 
+                        MarcXML ->
+                            xml docString
+                                |> Result.map (toBlockHtml (Just 1))
+                                |> Result.withDefault (HT.text docString)
+
                         _ ->
                             noLang docString
                                 |> Result.map (toBlockHtml (Just 1))
@@ -212,11 +217,17 @@ viewToolbar model =
                         , options =
                             [ Input.option JsonLd (text "JSON-LD")
                             , Input.option Turtle (text "Turtle")
-                            , Input.option NTriples (text "N-triples (RDF)")
+                            , Input.option NTriples (text "N-triples")
+                            , Input.option MarcXML (text "MARCXML")
                             ]
                         }
                     ]
-                , viewLanguageRequestSelector model
+                , case model.requestType of
+                    MarcXML ->
+                        none
+
+                    _ ->
+                        viewLanguageRequestSelector model
                 ]
             ]
         , formatCodeSnippet CURL model
@@ -380,18 +391,29 @@ formatCodeSnippet fmt model =
     row
         [ width fill
         , height (px 200)
-        , Background.color colourScheme.white
         ]
         [ textColumn
             [ width fill
             , height fill
-            , padding 4
+            , spacing 4
             ]
-            [ paragraph
-                [ Font.family [ Font.monospace ]
+            [ row
+                [ width fill
+                , Font.size 14
+                , Font.semiBold
+                , Font.color colourScheme.white
+                , padding 4
+                ]
+                [ text "API Request"
+                ]
+            , paragraph
+                [ Background.color colourScheme.white
+                , Font.family [ Font.monospace ]
                 , Font.size 14
                 , alignTop
                 , htmlAttribute (HA.style "overflow-wrap" "anywhere")
+                , padding 4
+                , height fill
                 ]
                 [ text code ]
             ]

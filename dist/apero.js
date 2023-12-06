@@ -11158,8 +11158,10 @@ var $author$project$Core$requestTypeToMimeType = function (requestType) {
 			return 'application/ld+json';
 		case 'Turtle':
 			return 'text/turtle';
-		default:
+		case 'NTriples':
 			return 'application/n-triples';
+		default:
+			return 'application/marcxml+xml';
 	}
 };
 var $author$project$Core$getApiDocument = F2(
@@ -11190,6 +11192,7 @@ var $author$project$Core$Loading = function (a) {
 	return {$: 'Loading', a: a};
 };
 var $author$project$Core$JsonLd = {$: 'JsonLd'};
+var $author$project$Core$MarcXML = {$: 'MarcXML'};
 var $author$project$Core$NTriples = {$: 'NTriples'};
 var $author$project$Core$Turtle = {$: 'Turtle'};
 var $author$project$Core$convertResponseType = function (rtype) {
@@ -11200,6 +11203,8 @@ var $author$project$Core$convertResponseType = function (rtype) {
 			return $author$project$Core$Turtle;
 		case 'n-triples':
 			return $author$project$Core$NTriples;
+		case 'marcxml':
+			return $author$project$Core$MarcXML;
 		default:
 			return $author$project$Core$JsonLd;
 	}
@@ -19850,37 +19855,330 @@ var $elm$core$Result$withDefault = F2(
 			return def;
 		}
 	});
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Type$Comment = {$: 'Comment'};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$AttributeValue = {$: 'AttributeValue'};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$lineBreak = A2(
+	$elm$parser$Parser$map,
+	function (_v0) {
+		return _Utils_Tuple2($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Type$LineBreak, '\n');
+	},
+	$elm$parser$Parser$symbol('\n'));
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$lineBreakList = A2($elm$parser$Parser$map, $elm$core$List$singleton, $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$lineBreak);
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$doubleQuoteDelimiter = {
+	defaultMap: function (b) {
+		return _Utils_Tuple2(
+			$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Type$C($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$AttributeValue),
+			b);
+	},
+	end: '\"',
+	innerParsers: _List_fromArray(
+		[$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$lineBreakList]),
+	isNestable: false,
+	isNotRelevant: A2($elm$core$Basics$composeL, $elm$core$Basics$not, $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$isLineBreak),
+	start: '\"'
+};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$comment = $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$delimited(
+	_Utils_update(
+		$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$doubleQuoteDelimiter,
+		{
+			defaultMap: function (b) {
+				return _Utils_Tuple2($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Type$Comment, b);
+			},
+			end: '-->',
+			start: '<!--'
+		}));
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$openTagParser = A2(
+	$elm$parser$Parser$ignorer,
+	A2(
+		$elm$parser$Parser$ignorer,
+		$elm$parser$Parser$succeed(_Utils_Tuple0),
+		$elm$parser$Parser$chompIf(
+			function (c) {
+				return _Utils_eq(
+					c,
+					_Utils_chr('<'));
+			})),
+	$elm$parser$Parser$oneOf(
+		_List_fromArray(
+			[
+				$elm$parser$Parser$chompIf(
+				function (c) {
+					return _Utils_eq(
+						c,
+						_Utils_chr('/')) || (_Utils_eq(
+						c,
+						_Utils_chr('!')) || _Utils_eq(
+						c,
+						_Utils_chr('?')));
+				}),
+				$elm$parser$Parser$succeed(_Utils_Tuple0)
+			])));
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$Tag = {$: 'Tag'};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$Attribute = {$: 'Attribute'};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$doubleQuote = $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$delimited($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$doubleQuoteDelimiter);
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$isWhitespace = function (c) {
+	return $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$isSpace(c) || $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$isLineBreak(c);
+};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$quote = $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$delimited(
+	_Utils_update(
+		$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$doubleQuoteDelimiter,
+		{end: '\'', start: '\''}));
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$attributeValue = $elm$parser$Parser$oneOf(
+	_List_fromArray(
+		[
+			$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$doubleQuote,
+			$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$quote,
+			A2(
+			$elm$parser$Parser$map,
+			function (b) {
+				return _List_fromArray(
+					[
+						_Utils_Tuple2(
+						$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Type$C($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$AttributeValue),
+						b)
+					]);
+			},
+			$elm$parser$Parser$getChompedString(
+				$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$chompIfThenWhile(
+					function (c) {
+						return (!$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$isWhitespace(c)) && (!_Utils_eq(
+							c,
+							_Utils_chr('>')));
+					})))
+		]));
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$whitespace = $elm$parser$Parser$oneOf(
+	_List_fromArray(
+		[
+			A2(
+			$elm$parser$Parser$map,
+			function (s) {
+				return _Utils_Tuple2($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Type$Normal, s);
+			},
+			$elm$parser$Parser$getChompedString(
+				$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$chompIfThenWhile($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$isSpace))),
+			$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$lineBreak
+		]));
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$attributeValueLoop = function (revTokens) {
+	return $elm$parser$Parser$oneOf(
+		_List_fromArray(
+			[
+				A3($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$consThen, $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$attributeValueLoop, revTokens, $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$whitespace),
+				A3($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$addThen, $elm$parser$Parser$succeed, revTokens, $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$attributeValue),
+				$elm$parser$Parser$succeed(revTokens)
+			]));
+};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$attributeConfirm = function (revTokens) {
+	return $elm$parser$Parser$oneOf(
+		_List_fromArray(
+			[
+				A3($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$consThen, $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$attributeConfirm, revTokens, $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$whitespace),
+				A3(
+				$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$consThen,
+				$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$attributeValueLoop,
+				revTokens,
+				A2(
+					$elm$parser$Parser$map,
+					function (_v0) {
+						return _Utils_Tuple2($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Type$Normal, '=');
+					},
+					$elm$parser$Parser$symbol('='))),
+				$elm$parser$Parser$succeed(revTokens)
+			]));
+};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$isStartTagChar = function (c) {
+	return $elm$core$Char$isUpper(c) || ($elm$core$Char$isLower(c) || $elm$core$Char$isDigit(c));
+};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$isTagChar = function (c) {
+	return $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$isStartTagChar(c) || _Utils_eq(
+		c,
+		_Utils_chr('-'));
+};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$isAttributeChar = function (c) {
+	return $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$isTagChar(c) || _Utils_eq(
+		c,
+		_Utils_chr('_'));
+};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$attributeLoop = function (revTokens) {
+	return $elm$parser$Parser$oneOf(
+		_List_fromArray(
+			[
+				A2(
+				$elm$parser$Parser$map,
+				$elm$parser$Parser$Loop,
+				A3(
+					$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$consThen,
+					$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$attributeConfirm,
+					revTokens,
+					A2(
+						$elm$parser$Parser$map,
+						function (b) {
+							return _Utils_Tuple2(
+								$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Type$C($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$Attribute),
+								b);
+						},
+						$elm$parser$Parser$getChompedString(
+							$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$chompIfThenWhile($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$isAttributeChar))))),
+				A2(
+				$elm$parser$Parser$map,
+				function (n) {
+					return $elm$parser$Parser$Loop(
+						A2($elm$core$List$cons, n, revTokens));
+				},
+				$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$whitespace),
+				A2(
+				$elm$parser$Parser$map,
+				function (b) {
+					return $elm$parser$Parser$Loop(
+						A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Type$Normal, b),
+							revTokens));
+				},
+				$elm$parser$Parser$getChompedString(
+					$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$chompIfThenWhile(
+						function (c) {
+							return (!$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$isWhitespace(c)) && (!_Utils_eq(
+								c,
+								_Utils_chr('>')));
+						}))),
+				$elm$parser$Parser$succeed(
+				$elm$parser$Parser$Done(revTokens))
+			]));
+};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$tag = function (revTokens) {
+	return $elm$parser$Parser$oneOf(
+		_List_fromArray(
+			[
+				A2(
+				$elm$parser$Parser$andThen,
+				function (n) {
+					return A2(
+						$elm$parser$Parser$loop,
+						A2($elm$core$List$cons, n, revTokens),
+						$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$attributeLoop);
+				},
+				A2(
+					$elm$parser$Parser$map,
+					function (b) {
+						return _Utils_Tuple2(
+							$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Type$C($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$Tag),
+							b);
+					},
+					$elm$parser$Parser$getChompedString(
+						A2(
+							$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$thenChompWhile,
+							$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$isTagChar,
+							$elm$parser$Parser$chompIf($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$isStartTagChar))))),
+				$elm$parser$Parser$succeed(revTokens)
+			]));
+};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$openTag = function (revTokens) {
+	return A2(
+		$elm$parser$Parser$andThen,
+		$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$tag,
+		A2(
+			$elm$parser$Parser$map,
+			function (b) {
+				return A2(
+					$elm$core$List$cons,
+					_Utils_Tuple2($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Type$Normal, b),
+					revTokens);
+			},
+			$elm$parser$Parser$getChompedString($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$openTagParser)));
+};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$mainLoop = function (revTokens) {
+	return $elm$parser$Parser$oneOf(
+		_List_fromArray(
+			[
+				A2(
+				$elm$parser$Parser$map,
+				function (n) {
+					return $elm$parser$Parser$Loop(
+						A2($elm$core$List$cons, n, revTokens));
+				},
+				$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$whitespace),
+				A2(
+				$elm$parser$Parser$map,
+				function (n) {
+					return $elm$parser$Parser$Loop(
+						_Utils_ap(n, revTokens));
+				},
+				$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$comment),
+				A2(
+				$elm$parser$Parser$map,
+				function (n) {
+					return $elm$parser$Parser$Loop(
+						A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Type$Normal, n),
+							revTokens));
+				},
+				$elm$parser$Parser$getChompedString(
+					$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$chompIfThenWhile(
+						function (c) {
+							return (!_Utils_eq(
+								c,
+								_Utils_chr('<'))) && (!$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Helpers$isLineBreak(c));
+						}))),
+				A2(
+				$elm$parser$Parser$map,
+				$elm$parser$Parser$Loop,
+				$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$openTag(revTokens)),
+				$elm$parser$Parser$succeed(
+				$elm$parser$Parser$Done(revTokens))
+			]));
+};
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$toRevTokens = A2($elm$parser$Parser$loop, _List_Nil, $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$mainLoop);
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$toLines = A2(
+	$elm$core$Basics$composeR,
+	$elm$parser$Parser$run($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$toRevTokens),
+	$elm$core$Result$map(
+		$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Line$Helpers$toLines($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$syntaxToStyle)));
+var $pablohirafuji$elm_syntax_highlight$SyntaxHighlight$xml = A2(
+	$elm$core$Basics$composeR,
+	$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$Language$Xml$toLines,
+	$elm$core$Result$map($pablohirafuji$elm_syntax_highlight$SyntaxHighlight$HCode));
 var $author$project$Ui$View$viewCode = function (model) {
 	var fmtOutput = function () {
 		var _v0 = model.serverResponse;
 		if (_v0.$ === 'Response') {
 			var docString = _v0.a;
 			var _v1 = model.requestType;
-			if (_v1.$ === 'JsonLd') {
-				return A2(
-					$elm$core$Result$withDefault,
-					$elm$html$Html$text(docString),
-					A2(
-						$elm$core$Result$map,
-						$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$toBlockHtml(
-							$elm$core$Maybe$Just(1)),
-						$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$json(
-							A2(
-								$elm$core$Result$withDefault,
-								docString,
+			switch (_v1.$) {
+				case 'JsonLd':
+					return A2(
+						$elm$core$Result$withDefault,
+						$elm$html$Html$text(docString),
+						A2(
+							$elm$core$Result$map,
+							$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$toBlockHtml(
+								$elm$core$Maybe$Just(1)),
+							$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$json(
 								A2(
-									$author$project$Json$Print$prettyString,
-									{columns: 80, indent: 2},
-									docString)))));
-			} else {
-				return A2(
-					$elm$core$Result$withDefault,
-					$elm$html$Html$text(docString),
-					A2(
-						$elm$core$Result$map,
-						$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$toBlockHtml(
-							$elm$core$Maybe$Just(1)),
-						$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$noLang(docString)));
+									$elm$core$Result$withDefault,
+									docString,
+									A2(
+										$author$project$Json$Print$prettyString,
+										{columns: 80, indent: 2},
+										docString)))));
+				case 'MarcXML':
+					return A2(
+						$elm$core$Result$withDefault,
+						$elm$html$Html$text(docString),
+						A2(
+							$elm$core$Result$map,
+							$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$toBlockHtml(
+								$elm$core$Maybe$Just(1)),
+							$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$xml(docString)));
+				default:
+					return A2(
+						$elm$core$Result$withDefault,
+						$elm$html$Html$text(docString),
+						A2(
+							$elm$core$Result$map,
+							$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$toBlockHtml(
+								$elm$core$Maybe$Just(1)),
+							$pablohirafuji$elm_syntax_highlight$SyntaxHighlight$noLang(docString)));
 			}
 		} else {
 			return $elm$html$Html$text('Loading ...');
@@ -20041,6 +20339,7 @@ var $lukewestby$elm_template$Template$render = F2(
 			'',
 			currentTemplate);
 	});
+var $mdgriffith$elm_ui$Element$Font$semiBold = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontWeight, $mdgriffith$elm_ui$Internal$Style$classes.textSemiBold);
 var $author$project$Ui$View$formatCodeSnippet = F2(
 	function (fmt, model) {
 		var code = A2(
@@ -20057,8 +20356,7 @@ var $author$project$Ui$View$formatCodeSnippet = F2(
 				[
 					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
 					$mdgriffith$elm_ui$Element$height(
-					$mdgriffith$elm_ui$Element$px(200)),
-					$mdgriffith$elm_ui$Element$Background$color($author$project$Ui$View$colourScheme.white)
+					$mdgriffith$elm_ui$Element$px(200))
 				]),
 			_List_fromArray(
 				[
@@ -20068,21 +20366,38 @@ var $author$project$Ui$View$formatCodeSnippet = F2(
 						[
 							$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
 							$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
-							$mdgriffith$elm_ui$Element$padding(4)
+							$mdgriffith$elm_ui$Element$spacing(4)
 						]),
 					_List_fromArray(
 						[
 							A2(
+							$mdgriffith$elm_ui$Element$row,
+							_List_fromArray(
+								[
+									$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+									$mdgriffith$elm_ui$Element$Font$size(14),
+									$mdgriffith$elm_ui$Element$Font$semiBold,
+									$mdgriffith$elm_ui$Element$Font$color($author$project$Ui$View$colourScheme.white),
+									$mdgriffith$elm_ui$Element$padding(4)
+								]),
+							_List_fromArray(
+								[
+									$mdgriffith$elm_ui$Element$text('API Request')
+								])),
+							A2(
 							$mdgriffith$elm_ui$Element$paragraph,
 							_List_fromArray(
 								[
+									$mdgriffith$elm_ui$Element$Background$color($author$project$Ui$View$colourScheme.white),
 									$mdgriffith$elm_ui$Element$Font$family(
 									_List_fromArray(
 										[$mdgriffith$elm_ui$Element$Font$monospace])),
 									$mdgriffith$elm_ui$Element$Font$size(14),
 									$mdgriffith$elm_ui$Element$alignTop,
 									$mdgriffith$elm_ui$Element$htmlAttribute(
-									A2($elm$html$Html$Attributes$style, 'overflow-wrap', 'anywhere'))
+									A2($elm$html$Html$Attributes$style, 'overflow-wrap', 'anywhere')),
+									$mdgriffith$elm_ui$Element$padding(4),
+									$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill)
 								]),
 							_List_fromArray(
 								[
@@ -21234,12 +21549,23 @@ var $author$project$Ui$View$viewToolbar = function (model) {
 													A2(
 													$mdgriffith$elm_ui$Element$Input$option,
 													$author$project$Core$NTriples,
-													$mdgriffith$elm_ui$Element$text('N-triples (RDF)'))
+													$mdgriffith$elm_ui$Element$text('N-triples')),
+													A2(
+													$mdgriffith$elm_ui$Element$Input$option,
+													$author$project$Core$MarcXML,
+													$mdgriffith$elm_ui$Element$text('MARCXML'))
 												]),
 											selected: $elm$core$Maybe$Just(model.requestType)
 										})
 									])),
-								$author$project$Ui$View$viewLanguageRequestSelector(model)
+								function () {
+								var _v0 = model.requestType;
+								if (_v0.$ === 'MarcXML') {
+									return $mdgriffith$elm_ui$Element$none;
+								} else {
+									return $author$project$Ui$View$viewLanguageRequestSelector(model);
+								}
+							}()
 							]))
 					])),
 				A2($author$project$Ui$View$formatCodeSnippet, $author$project$Core$CURL, model)
@@ -21418,4 +21744,4 @@ _Platform_export({'Apero':{'init':$author$project$Apero$main(
 				},
 				A2($elm$json$Json$Decode$field, 'requestType', $elm$json$Json$Decode$string));
 		},
-		A2($elm$json$Json$Decode$field, 'url', $elm$json$Json$Decode$string)))({"versions":{"elm":"0.19.1"},"types":{"message":"Core.Msg","aliases":{"Http.Metadata":{"args":[],"type":"{ url : String.String, statusCode : Basics.Int, statusText : String.String, headers : Dict.Dict String.String String.String }"}},"unions":{"Core.Msg":{"args":[],"tags":{"ServerRespondedWithApiDocument":["Result.Result (Http.Detailed.Error String.String) ( Http.Metadata, String.String )"],"UserClickedApiFormatRadioButton":["Core.RequestType"],"UserClickedChooseLanguageRadioButton":["Core.LanguageSelection"],"UserClickedSomeLanguageCheckboxSelector":["Basics.Bool","Core.Language"],"UserClickedErrorMessageDismiss":[],"NothingHappened":[]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Http.Detailed.Error":{"args":["body"],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Metadata","body"],"BadBody":["Http.Metadata","body","String.String"]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Core.Language":{"args":[],"tags":{"English":[],"German":[],"French":[],"Italian":[],"Spanish":[],"Portugese":[],"Polish":[]}},"Core.LanguageSelection":{"args":[],"tags":{"AllLanguages":[],"SomeLanguages":[]}},"Core.RequestType":{"args":[],"tags":{"JsonLd":[],"Turtle":[],"NTriples":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
+		A2($elm$json$Json$Decode$field, 'url', $elm$json$Json$Decode$string)))({"versions":{"elm":"0.19.1"},"types":{"message":"Core.Msg","aliases":{"Http.Metadata":{"args":[],"type":"{ url : String.String, statusCode : Basics.Int, statusText : String.String, headers : Dict.Dict String.String String.String }"}},"unions":{"Core.Msg":{"args":[],"tags":{"ServerRespondedWithApiDocument":["Result.Result (Http.Detailed.Error String.String) ( Http.Metadata, String.String )"],"UserClickedApiFormatRadioButton":["Core.RequestType"],"UserClickedChooseLanguageRadioButton":["Core.LanguageSelection"],"UserClickedSomeLanguageCheckboxSelector":["Basics.Bool","Core.Language"],"UserClickedErrorMessageDismiss":[],"NothingHappened":[]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Http.Detailed.Error":{"args":["body"],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Metadata","body"],"BadBody":["Http.Metadata","body","String.String"]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Core.Language":{"args":[],"tags":{"English":[],"German":[],"French":[],"Italian":[],"Spanish":[],"Portugese":[],"Polish":[]}},"Core.LanguageSelection":{"args":[],"tags":{"AllLanguages":[],"SomeLanguages":[]}},"Core.RequestType":{"args":[],"tags":{"JsonLd":[],"Turtle":[],"NTriples":[],"MarcXML":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));

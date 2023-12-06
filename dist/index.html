@@ -19,16 +19,35 @@
 
     </style>
     <script type="text/javascript">
+        const acceptedFormats =
+        {
+            JSONLD: "json-ld",
+            TURTLE: "turtle",
+            NTRIPLES: "n-triples",
+            MARCXML: "marcxml"
+        };
+
         document.addEventListener("DOMContentLoaded", () => {
             const params = new URLSearchParams(window.location.search);
+            console.log(params);
             const fileUrl = params.get("url");
+            const format = params.get("format")
 
             if (fileUrl) {
+                let requestType;
+                if (!Object.values(acceptedFormats).includes(format))
+                {
+                    requestType = "json-ld";
+                }
+                else
+                {
+                    requestType = format;
+                }
                 let _apero = Elm.Apero.init({
                     node: document.getElementById("apero-wrapper"),
                     flags: {
                         url: fileUrl,
-                        requestType: "json-ld"
+                        requestType: requestType
                     }
                 });
             } else {
