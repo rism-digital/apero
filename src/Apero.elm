@@ -25,12 +25,7 @@ view : Model -> Document Msg
 view model =
     { title = "Apero"
     , body =
-        [ Element.layout
-            [ width fill
-            , height fill
-            , padding 0
-            ]
-            (Ui.View.view model)
+        [ Ui.View.view model
         ]
     }
 

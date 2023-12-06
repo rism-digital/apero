@@ -1,6 +1,6 @@
 module Ui.View exposing (..)
 
-import Core exposing (CodeFormat(..), Language(..), LanguageSelection(..), Model, Msg(..), RequestType(..), Response(..), langToLangCode, requestTypeToMimeType)
+import Core exposing (BodyView(..), CodeFormat(..), Language(..), LanguageSelection(..), Model, Msg(..), RequestType(..), Response(..), langToLangCode, requestTypeToMimeType)
 import Element exposing (Color, Element, alignRight, alignTop, centerX, centerY, clipY, column, el, fill, fromRgb255, height, html, htmlAttribute, inFront, none, padding, paddingXY, paragraph, pointer, px, rgb255, row, scrollbars, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
@@ -33,8 +33,28 @@ colourScheme =
     }
 
 
-view : Model -> Element Msg
+view : Model -> HT.Html Msg
 view model =
+    case model.view of
+        Viewer ->
+            viewer model
+
+        Raw ->
+            raw model
+
+
+raw : Model -> HT.Html Msg
+raw model =
+    case model.serverResponse of
+        Response docString ->
+            HT.text docString
+
+        _ ->
+            HT.text ""
+
+
+viewer : Model -> HT.Html Msg
+viewer model =
     let
         errView =
             case model.serverResponse of
@@ -96,28 +116,34 @@ view model =
                 _ ->
                     none
     in
-    row
+    Element.layout
         [ width fill
         , height fill
-        , alignTop
-        , inFront errView
+        , padding 0
         ]
-        [ column
+        (row
             [ width fill
             , height fill
+            , alignTop
+            , inFront errView
             ]
-            [ row
+            [ column
                 [ width fill
-                , height (px 40)
-                , padding 5
-                , Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
+                , height fill
                 ]
-                [ text ("Record URI: " ++ model.url)
+                [ row
+                    [ width fill
+                    , height (px 40)
+                    , padding 5
+                    , Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
+                    ]
+                    [ text ("Record URI: " ++ model.url)
+                    ]
+                , viewCode model
                 ]
-            , viewCode model
+            , viewToolbar model
             ]
-        , viewToolbar model
-        ]
+        )
 
 
 viewCode : Model -> Element Msg

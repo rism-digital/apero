@@ -27,11 +27,17 @@
             MARCXML: "marcxml"
         };
 
+        const viewer =
+        {
+            VIEWER: "viewer",
+            RAW: "raw"
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const params = new URLSearchParams(window.location.search);
-            console.log(params);
             const fileUrl = params.get("url");
-            const format = params.get("format")
+            const format = params.get("format");
+            const view = params.get("view");
 
             if (fileUrl) {
                 let requestType;
@@ -43,11 +49,23 @@
                 {
                     requestType = format;
                 }
+
+                let bodyView;
+                if (!Object.values(viewer).includes(view))
+                {
+                    bodyView = "normal";
+                }
+                else
+                {
+                    bodyView = view;
+                }
+
                 let _apero = Elm.Apero.init({
                     node: document.getElementById("apero-wrapper"),
                     flags: {
                         url: fileUrl,
-                        requestType: requestType
+                        requestType: requestType,
+                        view: bodyView
                     }
                 });
             } else {

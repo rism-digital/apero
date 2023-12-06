@@ -4,6 +4,11 @@ import Http exposing (emptyBody)
 import Http.Detailed
 
 
+type BodyView
+    = Viewer
+    | Raw
+
+
 type RequestType
     = JsonLd
     | Turtle
@@ -42,6 +47,7 @@ type CodeFormat
 type alias Flags =
     { url : String
     , requestType : String
+    , view : String
     }
 
 
@@ -51,6 +57,7 @@ type alias Model =
     , serverResponse : Response String
     , languageRequest : LanguageSelection
     , chosenLanguages : Maybe (List Language)
+    , view : BodyView
     }
 
 
@@ -86,6 +93,15 @@ convertResponseType rtype =
             JsonLd
 
 
+convertViewType : String -> BodyView
+convertViewType view =
+    if view == "raw" then
+        Raw
+
+    else
+        Viewer
+
+
 requestTypeToMimeType : RequestType -> String
 requestTypeToMimeType requestType =
     case requestType of
@@ -109,6 +125,7 @@ initBody flags =
     , serverResponse = Loading Nothing
     , languageRequest = AllLanguages
     , chosenLanguages = Nothing
+    , view = convertViewType flags.view
     }
 
 
