@@ -456,10 +456,10 @@ type alias RequestComponents =
 formatCurlCommand : Template RequestComponents
 formatCurlCommand =
     template "curl -XGET "
-        |> withValue (\r -> " -H " ++ r.formattedAccept)
+        |> withValue (\r -> " -H " ++ "\"" ++ r.formattedAccept ++ "\"")
         |> withValue
             (\r ->
-                Maybe.map (\hdr -> " -H " ++ hdr) r.formattedLanguages
+                Maybe.map (\hdr -> " -H " ++ "\"" ++ hdr ++ "\"") r.formattedLanguages
                     |> Maybe.withDefault ""
             )
         |> withString " "

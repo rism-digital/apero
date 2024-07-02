@@ -20307,14 +20307,14 @@ var $author$project$Ui$View$formatCurlCommand = A2(
 					A2(
 						$elm$core$Maybe$map,
 						function (hdr) {
-							return ' -H ' + hdr;
+							return ' -H ' + ('\"' + (hdr + '\"'));
 						},
 						r.formattedLanguages));
 			},
 			A2(
 				$lukewestby$elm_template$Template$withValue,
 				function (r) {
-					return ' -H ' + r.formattedAccept;
+					return ' -H ' + ('\"' + (r.formattedAccept + '\"'));
 				},
 				$lukewestby$elm_template$Template$template('curl -XGET ')))));
 var $elm$core$String$append = _String_append;
