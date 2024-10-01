@@ -1,8 +1,8 @@
-module Json.Print exposing (Config, prettyString, prettyValue)
+module Json.Print exposing (Config, prettyString)
 
 {-| Pretty print JSON stored as a `String` or `Json.Encode.Value`
 
-@docs Config, prettyString, prettyValue
+@docs Config, prettyString
 
 From <https://package.elm-lang.org/packages/the-sett/elm-pretty-printer/latest/Pretty>, updated to newer version
 of the Pretty library.
@@ -12,7 +12,6 @@ of the Pretty library.
 -- third
 
 import Json.Decode as Decode exposing (Decoder)
-import Json.Encode exposing (Value)
 import Pretty exposing (Doc, append, char, join, line, nest, space, string, surround)
 
 
@@ -170,17 +169,7 @@ passes the string through `Json.Decode.decodeString` and bubbles up any JSON
 parsing errors.
 -}
 prettyString : Config -> String -> Result String String
-prettyString { columns, indent } json =
+prettyString { indent, columns } json =
     Decode.decodeString (decodeDoc indent) json
-        |> Result.map (Pretty.pretty columns)
-        |> Result.mapError Decode.errorToString
-
-
-{-| Formats a `Json.Encode.Value`. Internally passes the string through
-`Json.Decode.decodeValue` and bubbles up any JSON parsing errors.
--}
-prettyValue : Config -> Value -> Result String String
-prettyValue { columns, indent } json =
-    Decode.decodeValue (decodeDoc indent) json
         |> Result.map (Pretty.pretty columns)
         |> Result.mapError Decode.errorToString

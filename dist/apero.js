@@ -582,6 +582,20 @@ function _Utils_eqHelp(x, y, depth, stack)
 	}
 	//*/
 
+	if (typeof DataView === "function" && x instanceof DataView) {
+		var length = x.byteLength;
+
+		if (y.byteLength !== length) {
+			return false;
+		}
+
+		for (var i = 0; i < length; ++i) {
+			if (x.getUint8(i) !== y.getUint8(i)) {
+				return false;
+			}
+		}
+	}
+
 	for (var key in x)
 	{
 		if (!_Utils_eqHelp(x[key], y[key], depth + 1, stack))
@@ -970,7 +984,7 @@ var _String_foldl = F3(function(func, state, string)
 var _String_foldr = F3(function(func, state, string)
 {
 	var i = string.length;
-	while (i--)
+	while (i-- > 0)
 	{
 		var char = string[i];
 		var word = string.charCodeAt(i);
@@ -1036,7 +1050,7 @@ function _String_toLower(str)
 var _String_any = F2(function(isGood, string)
 {
 	var i = string.length;
-	while (i--)
+	while (i-- > 0)
 	{
 		var char = string[i];
 		var word = string.charCodeAt(i);
@@ -1056,7 +1070,7 @@ var _String_any = F2(function(isGood, string)
 var _String_all = F2(function(isGood, string)
 {
 	var i = string.length;
-	while (i--)
+	while (i-- > 0)
 	{
 		var char = string[i];
 		var word = string.charCodeAt(i);
@@ -1529,7 +1543,11 @@ function _Json_runArrayDecoder(decoder, value, toElmValue)
 
 function _Json_isArray(value)
 {
-	return Array.isArray(value) || (typeof FileList !== 'undefined' && value instanceof FileList);
+	return Array.isArray(value)
+		|| (typeof FileList !== 'undefined' && value instanceof FileList)
+		|| (typeof TouchList !== 'undefined' && value instanceof TouchList)
+		|| (typeof HTMLCollection !== 'undefined' && value instanceof HTMLCollection)
+		|| (typeof NodeList !== 'undefined' && value instanceof NodeList);
 }
 
 function _Json_toElmArray(array)
@@ -1581,7 +1599,7 @@ function _Json_equality(x, y)
 			return x.e === y.e && _Json_equality(x.b, y.b);
 
 		case 9:
-			return x.f === y.f && _Json_listEquality(x.g, y.g);
+			return x.f === y.f && _Json_arrayEquality(x.g, y.g);
 
 		case 10:
 			return x.h === y.h && _Json_equality(x.b, y.b);
@@ -1591,7 +1609,7 @@ function _Json_equality(x, y)
 	}
 }
 
-function _Json_listEquality(aDecoders, bDecoders)
+function _Json_arrayEquality(aDecoders, bDecoders)
 {
 	var len = aDecoders.length;
 	if (len !== bDecoders.length)
@@ -1608,6 +1626,29 @@ function _Json_listEquality(aDecoders, bDecoders)
 	return true;
 }
 
+function _Json_listEquality(aDecoders, bDecoders)
+{
+	var tempA = aDecoders;
+	var tempB = bDecoders;
+	while (tempA.b)
+	{
+		if (!tempB.b)
+		{
+			return false;
+		}
+		if (!_Json_equality(tempA.a, tempB.a))
+		{
+			return false;
+		}
+		tempA = tempA.b;
+		tempB = tempB.b;
+	}
+	if (tempB.b)
+	{
+		return false;
+	}
+	return true;
+}
 
 // ENCODE
 
@@ -2226,6 +2267,11 @@ function _Platform_setupOutgoingPort(name)
 
 	function subscribe(callback)
 	{
+		if (typeof callback !== 'function')
+		{
+			throw new Error('Trying to subscribe an invalid callback on port `' + name + '`');
+		}
+
 		subs.push(callback);
 	}
 
@@ -5245,8 +5291,8 @@ var _Parser_consumeBase16 = F2(function(offset, string)
 
 var _Parser_findSubString = F5(function(smallString, offset, row, col, bigString)
 {
-	var newOffset = bigString.indexOf(smallString, offset);
-	var target = newOffset < 0 ? bigString.length : newOffset + smallString.length;
+	var index = bigString.indexOf(smallString, offset);
+	var target = index < 0 ? bigString.length : index + smallString.length;
 
 	while (offset < target)
 	{
@@ -5256,7 +5302,7 @@ var _Parser_findSubString = F5(function(smallString, offset, row, col, bigString
 			: ( col++, (code & 0xF800) === 0xD800 && offset++ )
 	}
 
-	return _Utils_Tuple3(newOffset, row, col);
+	return _Utils_Tuple3(index < 0 ? -1 : target, row, col);
 });
 var $elm$core$List$cons = _List_cons;
 var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
@@ -5452,19 +5498,29 @@ var $elm$core$List$indexedMap = F2(
 				$elm$core$List$length(xs) - 1),
 			xs);
 	});
-var $elm$core$Char$toCode = _Char_toCode;
+var $elm$core$Basics$eq = _Utils_equal;
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$core$Char$toLower = _Char_toLower;
+var $elm$core$Char$toUpper = _Char_toUpper;
 var $elm$core$Char$isLower = function (_char) {
-	var code = $elm$core$Char$toCode(_char);
-	return (97 <= code) && (code <= 122);
+	return _Utils_eq(
+		_char,
+		$elm$core$Char$toLower(_char)) && (!_Utils_eq(
+		_char,
+		$elm$core$Char$toUpper(_char)));
 };
 var $elm$core$Char$isUpper = function (_char) {
-	var code = $elm$core$Char$toCode(_char);
-	return (code <= 90) && (65 <= code);
+	return _Utils_eq(
+		_char,
+		$elm$core$Char$toUpper(_char)) && (!_Utils_eq(
+		_char,
+		$elm$core$Char$toLower(_char)));
 };
 var $elm$core$Basics$or = _Basics_or;
 var $elm$core$Char$isAlpha = function (_char) {
 	return $elm$core$Char$isLower(_char) || $elm$core$Char$isUpper(_char);
 };
+var $elm$core$Char$toCode = _Char_toCode;
 var $elm$core$Char$isDigit = function (_char) {
 	var code = $elm$core$Char$toCode(_char);
 	return (code <= 57) && (48 <= code);
@@ -5607,7 +5663,6 @@ var $elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
 	});
-var $elm$core$Basics$eq = _Utils_equal;
 var $elm$core$Basics$floor = _Basics_floor;
 var $elm$core$Elm$JsArray$length = _JsArray_length;
 var $elm$core$Basics$gt = _Utils_gt;
@@ -7702,7 +7757,6 @@ var $elm$core$Array$length = function (_v0) {
 	var len = _v0.a;
 	return len;
 };
-var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$virtual_dom$VirtualDom$keyedNode = function (tag) {
 	return _VirtualDom_keyedNode(
 		_VirtualDom_noScript(tag));
@@ -10874,23 +10928,21 @@ var $author$project$Core$langToLangCode = function (language) {
 			return 'en';
 		case 'German':
 			return 'de';
-		case 'Polish':
-			return 'pl';
-		case 'Portugese':
-			return 'pt';
 		case 'French':
 			return 'fr';
 		case 'Italian':
 			return 'it';
-		default:
+		case 'Spanish':
 			return 'es';
+		case 'Portuguese':
+			return 'pt';
+		default:
+			return 'pl';
 	}
 };
 var $author$project$Core$addLangToHeaders = F2(
 	function (langList, headerList) {
-		if (langList.$ === 'Nothing') {
-			return headerList;
-		} else {
+		if (langList.$ === 'Just') {
 			var requestedLangs = langList.a;
 			var langHeader = A2(
 				$elm$http$Http$header,
@@ -10900,6 +10952,8 @@ var $author$project$Core$addLangToHeaders = F2(
 					',',
 					A2($elm$core$List$map, $author$project$Core$langToLangCode, requestedLangs)));
 			return A2($elm$core$List$cons, langHeader, headerList);
+		} else {
+			return headerList;
 		}
 	});
 var $elm$http$Http$BadStatus_ = F2(
@@ -11188,9 +11242,7 @@ var $author$project$Core$getApiDocument = F2(
 			});
 	});
 var $author$project$Core$AllLanguages = {$: 'AllLanguages'};
-var $author$project$Core$Loading = function (a) {
-	return {$: 'Loading', a: a};
-};
+var $author$project$Core$Loading = {$: 'Loading'};
 var $author$project$Core$JsonLd = {$: 'JsonLd'};
 var $author$project$Core$MarcXML = {$: 'MarcXML'};
 var $author$project$Core$NTriples = {$: 'NTriples'};
@@ -11199,12 +11251,12 @@ var $author$project$Core$convertResponseType = function (rtype) {
 	switch (rtype) {
 		case 'json-ld':
 			return $author$project$Core$JsonLd;
-		case 'turtle':
-			return $author$project$Core$Turtle;
-		case 'n-triples':
-			return $author$project$Core$NTriples;
 		case 'marcxml':
 			return $author$project$Core$MarcXML;
+		case 'n-triples':
+			return $author$project$Core$NTriples;
+		case 'turtle':
+			return $author$project$Core$Turtle;
 		default:
 			return $author$project$Core$JsonLd;
 	}
@@ -11219,7 +11271,7 @@ var $author$project$Core$initBody = function (flags) {
 		chosenLanguages: $elm$core$Maybe$Nothing,
 		languageRequest: $author$project$Core$AllLanguages,
 		requestType: $author$project$Core$convertResponseType(flags.requestType),
-		serverResponse: $author$project$Core$Loading($elm$core$Maybe$Nothing),
+		serverResponse: $author$project$Core$Loading,
 		url: flags.url,
 		view: $author$project$Core$convertViewType(flags.view)
 	};
@@ -11235,9 +11287,6 @@ var $author$project$Apero$init = function (flags) {
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
-var $author$project$Apero$subscriptions = function (model) {
-	return $elm$core$Platform$Sub$none;
-};
 var $author$project$Core$English = {$: 'English'};
 var $author$project$Core$Error = function (a) {
 	return {$: 'Error', a: a};
@@ -11291,12 +11340,6 @@ var $author$project$Apero$update = F2(
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
-			case 'UserClickedErrorMessageDismiss':
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{serverResponse: $author$project$Core$NoResponseToShow}),
-					$elm$core$Platform$Cmd$none);
 			case 'UserClickedApiFormatRadioButton':
 				var format = msg.a;
 				return _Utils_Tuple2(
@@ -11347,7 +11390,11 @@ var $author$project$Apero$update = F2(
 						{requestLanguages: newLangList, requestType: model.requestType},
 						model.url));
 			default:
-				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{serverResponse: $author$project$Core$NoResponseToShow}),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
 var $author$project$Ui$View$raw = function (model) {
@@ -19655,8 +19702,8 @@ var $the_sett$elm_pretty_printer$Pretty$pretty = F2(
 	});
 var $author$project$Json$Print$prettyString = F2(
 	function (_v0, json) {
-		var columns = _v0.columns;
 		var indent = _v0.indent;
+		var columns = _v0.columns;
 		return A2(
 			$elm$core$Result$mapError,
 			$elm$json$Json$Decode$errorToString,
@@ -20356,7 +20403,7 @@ var $lukewestby$elm_template$Template$render = F2(
 	});
 var $mdgriffith$elm_ui$Element$Font$semiBold = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontWeight, $mdgriffith$elm_ui$Internal$Style$classes.textSemiBold);
 var $author$project$Ui$View$formatCodeSnippet = F2(
-	function (fmt, model) {
+	function (_v0, model) {
 		var code = A2(
 			$lukewestby$elm_template$Template$render,
 			{
@@ -20984,7 +21031,7 @@ var $author$project$Core$French = {$: 'French'};
 var $author$project$Core$German = {$: 'German'};
 var $author$project$Core$Italian = {$: 'Italian'};
 var $author$project$Core$Polish = {$: 'Polish'};
-var $author$project$Core$Portugese = {$: 'Portugese'};
+var $author$project$Core$Portuguese = {$: 'Portuguese'};
 var $author$project$Core$Spanish = {$: 'Spanish'};
 var $author$project$Core$UserClickedSomeLanguageCheckboxSelector = F2(
 	function (a, b) {
@@ -21369,7 +21416,7 @@ var $author$project$Ui$View$viewLanguagesSelector = function (model) {
 								$mdgriffith$elm_ui$Element$alignTop
 							]),
 						{
-							checked: languageIsChecked($author$project$Core$Portugese),
+							checked: languageIsChecked($author$project$Core$Portuguese),
 							icon: $mdgriffith$elm_ui$Element$Input$defaultCheckbox,
 							label: A2(
 								$mdgriffith$elm_ui$Element$Input$labelRight,
@@ -21377,9 +21424,9 @@ var $author$project$Ui$View$viewLanguagesSelector = function (model) {
 									[
 										$mdgriffith$elm_ui$Element$Font$size(14)
 									]),
-								$mdgriffith$elm_ui$Element$text('Portugese')),
+								$mdgriffith$elm_ui$Element$text('Portuguese')),
 							onChange: function (state) {
-								return A2($author$project$Core$UserClickedSomeLanguageCheckboxSelector, state, $author$project$Core$Portugese);
+								return A2($author$project$Core$UserClickedSomeLanguageCheckboxSelector, state, $author$project$Core$Portuguese);
 							}
 						}),
 						A2(
@@ -21754,7 +21801,14 @@ var $author$project$Apero$view = function (model) {
 	};
 };
 var $author$project$Apero$main = $elm$browser$Browser$document(
-	{init: $author$project$Apero$init, subscriptions: $author$project$Apero$subscriptions, update: $author$project$Apero$update, view: $author$project$Apero$view});
+	{
+		init: $author$project$Apero$init,
+		subscriptions: function (_v0) {
+			return $elm$core$Platform$Sub$none;
+		},
+		update: $author$project$Apero$update,
+		view: $author$project$Apero$view
+	});
 _Platform_export({'Apero':{'init':$author$project$Apero$main(
 	A2(
 		$elm$json$Json$Decode$andThen,
@@ -21772,4 +21826,4 @@ _Platform_export({'Apero':{'init':$author$project$Apero$main(
 				},
 				A2($elm$json$Json$Decode$field, 'url', $elm$json$Json$Decode$string));
 		},
-		A2($elm$json$Json$Decode$field, 'view', $elm$json$Json$Decode$string)))({"versions":{"elm":"0.19.1"},"types":{"message":"Core.Msg","aliases":{"Http.Metadata":{"args":[],"type":"{ url : String.String, statusCode : Basics.Int, statusText : String.String, headers : Dict.Dict String.String String.String }"}},"unions":{"Core.Msg":{"args":[],"tags":{"ServerRespondedWithApiDocument":["Result.Result (Http.Detailed.Error String.String) ( Http.Metadata, String.String )"],"UserClickedApiFormatRadioButton":["Core.RequestType"],"UserClickedChooseLanguageRadioButton":["Core.LanguageSelection"],"UserClickedSomeLanguageCheckboxSelector":["Basics.Bool","Core.Language"],"UserClickedErrorMessageDismiss":[],"NothingHappened":[]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Http.Detailed.Error":{"args":["body"],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Metadata","body"],"BadBody":["Http.Metadata","body","String.String"]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Core.Language":{"args":[],"tags":{"English":[],"German":[],"French":[],"Italian":[],"Spanish":[],"Portugese":[],"Polish":[]}},"Core.LanguageSelection":{"args":[],"tags":{"AllLanguages":[],"SomeLanguages":[]}},"Core.RequestType":{"args":[],"tags":{"JsonLd":[],"Turtle":[],"NTriples":[],"MarcXML":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
+		A2($elm$json$Json$Decode$field, 'view', $elm$json$Json$Decode$string)))({"versions":{"elm":"0.19.1"},"types":{"message":"Core.Msg","aliases":{"Http.Metadata":{"args":[],"type":"{ url : String.String, statusCode : Basics.Int, statusText : String.String, headers : Dict.Dict String.String String.String }"}},"unions":{"Core.Msg":{"args":[],"tags":{"ServerRespondedWithApiDocument":["Result.Result (Http.Detailed.Error String.String) ( Http.Metadata, String.String )"],"UserClickedApiFormatRadioButton":["Core.RequestType"],"UserClickedChooseLanguageRadioButton":["Core.LanguageSelection"],"UserClickedSomeLanguageCheckboxSelector":["Basics.Bool","Core.Language"],"UserClickedErrorMessageDismiss":[]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Http.Detailed.Error":{"args":["body"],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Http.Metadata","body"],"BadBody":["Http.Metadata","body","String.String"]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"Core.Language":{"args":[],"tags":{"English":[],"German":[],"French":[],"Italian":[],"Spanish":[],"Portuguese":[],"Polish":[]}},"Core.LanguageSelection":{"args":[],"tags":{"AllLanguages":[],"SomeLanguages":[]}},"Core.RequestType":{"args":[],"tags":{"JsonLd":[],"Turtle":[],"NTriples":[],"MarcXML":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));

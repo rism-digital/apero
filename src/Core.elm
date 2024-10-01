@@ -1,4 +1,4 @@
-module Core exposing (..)
+module Core exposing (BodyView(..), CodeFormat(..), Flags, Language(..), LanguageSelection(..), Model, Msg(..), RequestConfig, RequestType(..), Response(..), getApiDocument, initBody, langToLangCode, requestTypeToMimeType)
 
 import Http exposing (emptyBody)
 import Http.Detailed
@@ -22,7 +22,7 @@ type Language
     | French
     | Italian
     | Spanish
-    | Portugese
+    | Portuguese
     | Polish
 
 
@@ -32,7 +32,7 @@ type LanguageSelection
 
 
 type Response data
-    = Loading (Maybe data)
+    = Loading
     | Response data
     | Error (Http.Detailed.Error String)
     | NoResponseToShow
@@ -40,8 +40,6 @@ type Response data
 
 type CodeFormat
     = CURL
-    | Python
-    | JavaScript
 
 
 type alias Flags =
@@ -61,17 +59,12 @@ type alias Model =
     }
 
 
-type alias ErrorBody =
-    { errorMessage : String }
-
-
 type Msg
     = ServerRespondedWithApiDocument (Result (Http.Detailed.Error String) ( Http.Metadata, String ))
     | UserClickedApiFormatRadioButton RequestType
     | UserClickedChooseLanguageRadioButton LanguageSelection
     | UserClickedSomeLanguageCheckboxSelector Bool Language
     | UserClickedErrorMessageDismiss
-    | NothingHappened
 
 
 convertResponseType : String -> RequestType
@@ -80,14 +73,14 @@ convertResponseType rtype =
         "json-ld" ->
             JsonLd
 
-        "turtle" ->
-            Turtle
+        "marcxml" ->
+            MarcXML
 
         "n-triples" ->
             NTriples
 
-        "marcxml" ->
-            MarcXML
+        "turtle" ->
+            Turtle
 
         _ ->
             JsonLd
@@ -122,7 +115,7 @@ initBody : Flags -> Model
 initBody flags =
     { url = flags.url
     , requestType = convertResponseType flags.requestType
-    , serverResponse = Loading Nothing
+    , serverResponse = Loading
     , languageRequest = AllLanguages
     , chosenLanguages = Nothing
     , view = convertViewType flags.view
@@ -158,9 +151,6 @@ getApiDocument cfg url =
 addLangToHeaders : Maybe (List Language) -> List Http.Header -> List Http.Header
 addLangToHeaders langList headerList =
     case langList of
-        Nothing ->
-            headerList
-
         Just requestedLangs ->
             let
                 langHeader =
@@ -169,6 +159,9 @@ addLangToHeaders langList headerList =
                         |> Http.header "X-API-Accept-Language"
             in
             langHeader :: headerList
+
+        Nothing ->
+            headerList
 
 
 langToLangCode : Language -> String
@@ -180,12 +173,6 @@ langToLangCode language =
         German ->
             "de"
 
-        Polish ->
-            "pl"
-
-        Portugese ->
-            "pt"
-
         French ->
             "fr"
 
@@ -194,3 +181,9 @@ langToLangCode language =
 
         Spanish ->
             "es"
+
+        Portuguese ->
+            "pt"
+
+        Polish ->
+            "pl"

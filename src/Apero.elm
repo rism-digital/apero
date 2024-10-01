@@ -1,8 +1,7 @@
-module Apero exposing (..)
+module Apero exposing (main)
 
 import Browser exposing (Document)
 import Core exposing (Flags, Language(..), LanguageSelection(..), Model, Msg(..), Response(..), getApiDocument, initBody)
-import Element exposing (fill, height, padding, width)
 import Ui.View
 
 
@@ -43,13 +42,6 @@ update msg model =
         ServerRespondedWithApiDocument (Err err) ->
             ( { model
                 | serverResponse = Error err
-              }
-            , Cmd.none
-            )
-
-        UserClickedErrorMessageDismiss ->
-            ( { model
-                | serverResponse = NoResponseToShow
               }
             , Cmd.none
             )
@@ -109,20 +101,19 @@ update msg model =
                 model.url
             )
 
-        NothingHappened ->
-            ( model, Cmd.none )
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+        UserClickedErrorMessageDismiss ->
+            ( { model
+                | serverResponse = NoResponseToShow
+              }
+            , Cmd.none
+            )
 
 
 main : Program Flags Model Msg
 main =
     Browser.document
         { init = init
-        , view = view
+        , subscriptions = \_ -> Sub.none
         , update = update
-        , subscriptions = subscriptions
+        , view = view
         }

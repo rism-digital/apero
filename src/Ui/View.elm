@@ -1,4 +1,4 @@
-module Ui.View exposing (..)
+module Ui.View exposing (RequestComponents, view)
 
 import Core exposing (BodyView(..), CodeFormat(..), Language(..), LanguageSelection(..), Model, Msg(..), RequestType(..), Response(..), langToLangCode, requestTypeToMimeType)
 import Element exposing (Color, Element, alignRight, alignTop, centerX, centerY, clipY, column, el, fill, fromRgb255, height, html, htmlAttribute, inFront, none, padding, paddingXY, paragraph, pointer, px, rgb255, row, scrollbars, spacing, text, textColumn, width)
@@ -16,13 +16,12 @@ import Template exposing (Template, render, template, withString, withValue)
 
 
 colourScheme :
-    { white : Color
-    , darkBlue : Color
+    { darkBlue : Color
     , translucentGrey : Color
+    , white : Color
     }
 colourScheme =
-    { white = rgb255 255 255 255
-    , darkBlue = rgb255 29 53 87
+    { darkBlue = rgb255 29 53 87
     , translucentGrey =
         fromRgb255
             { alpha = 0.5
@@ -30,6 +29,7 @@ colourScheme =
             , green = 136
             , red = 119
             }
+    , white = rgb255 255 255 255
     }
 
 
@@ -135,7 +135,7 @@ viewer model =
                     [ width fill
                     , height (px 40)
                     , padding 5
-                    , Border.widthEach { bottom = 1, top = 0, left = 0, right = 0 }
+                    , Border.widthEach { bottom = 1, left = 0, right = 0, top = 0 }
                     ]
                     [ text ("Record URI: " ++ model.url)
                     ]
@@ -205,7 +205,7 @@ viewToolbar model =
         , height fill
         , alignTop
         , Background.color colourScheme.darkBlue
-        , Border.widthEach { top = 0, bottom = 0, left = 1, right = 0 }
+        , Border.widthEach { bottom = 0, left = 1, right = 0, top = 0 }
         ]
         [ row
             [ width fill
@@ -229,9 +229,7 @@ viewToolbar model =
                         , alignTop
                         , width fill
                         ]
-                        { onChange = UserClickedApiFormatRadioButton
-                        , selected = Just model.requestType
-                        , label =
+                        { label =
                             Input.labelAbove
                                 [ Font.size 16
                                 , Font.color colourScheme.white
@@ -240,12 +238,14 @@ viewToolbar model =
                                 , alignTop
                                 ]
                                 (text "API Format")
+                        , onChange = UserClickedApiFormatRadioButton
                         , options =
                             [ Input.option JsonLd (text "JSON-LD")
                             , Input.option Turtle (text "Turtle")
                             , Input.option NTriples (text "N-triples")
                             , Input.option MarcXML (text "MARCXML")
                             ]
+                        , selected = Just model.requestType
                         }
                     ]
                 , case model.requestType of
@@ -289,9 +289,7 @@ viewLanguageRequestSelector model =
                     , alignTop
                     , width fill
                     ]
-                    { onChange = UserClickedChooseLanguageRadioButton
-                    , selected = Just model.languageRequest
-                    , label =
+                    { label =
                         Input.labelAbove
                             [ Font.size 16
                             , Font.color colourScheme.white
@@ -300,10 +298,12 @@ viewLanguageRequestSelector model =
                             , alignTop
                             ]
                             (text "Response Languages")
+                    , onChange = UserClickedChooseLanguageRadioButton
                     , options =
                         [ Input.option AllLanguages (text "All languages")
                         , Input.option SomeLanguages (text "Selected languages")
                         ]
+                    , selected = Just model.languageRequest
                     }
                 ]
             , langSel
@@ -334,77 +334,77 @@ viewLanguagesSelector model =
                 , Font.color colourScheme.white
                 , alignTop
                 ]
-                { onChange = \state -> UserClickedSomeLanguageCheckboxSelector state English
+                { checked = languageIsChecked English
                 , icon = Input.defaultCheckbox
-                , checked = languageIsChecked English
                 , label = Input.labelRight [ Font.size 14 ] (text "English")
+                , onChange = \state -> UserClickedSomeLanguageCheckboxSelector state English
                 }
             , Input.checkbox
                 [ Font.size 14
                 , Font.color colourScheme.white
                 , alignTop
                 ]
-                { onChange = \state -> UserClickedSomeLanguageCheckboxSelector state German
+                { checked = languageIsChecked German
                 , icon = Input.defaultCheckbox
-                , checked = languageIsChecked German
                 , label = Input.labelRight [ Font.size 14 ] (text "German")
+                , onChange = \state -> UserClickedSomeLanguageCheckboxSelector state German
                 }
             , Input.checkbox
                 [ Font.size 14
                 , Font.color colourScheme.white
                 , alignTop
                 ]
-                { onChange = \state -> UserClickedSomeLanguageCheckboxSelector state French
+                { checked = languageIsChecked French
                 , icon = Input.defaultCheckbox
-                , checked = languageIsChecked French
                 , label = Input.labelRight [ Font.size 14 ] (text "French")
+                , onChange = \state -> UserClickedSomeLanguageCheckboxSelector state French
                 }
             , Input.checkbox
                 [ Font.size 14
                 , Font.color colourScheme.white
                 , alignTop
                 ]
-                { onChange = \state -> UserClickedSomeLanguageCheckboxSelector state Italian
+                { checked = languageIsChecked Italian
                 , icon = Input.defaultCheckbox
-                , checked = languageIsChecked Italian
                 , label = Input.labelRight [ Font.size 14 ] (text "Italian")
+                , onChange = \state -> UserClickedSomeLanguageCheckboxSelector state Italian
                 }
             , Input.checkbox
                 [ Font.size 14
                 , Font.color colourScheme.white
                 , alignTop
                 ]
-                { onChange = \state -> UserClickedSomeLanguageCheckboxSelector state Spanish
+                { checked = languageIsChecked Spanish
                 , icon = Input.defaultCheckbox
-                , checked = languageIsChecked Spanish
                 , label = Input.labelRight [ Font.size 14 ] (text "Spanish")
+                , onChange = \state -> UserClickedSomeLanguageCheckboxSelector state Spanish
                 }
             , Input.checkbox
                 [ Font.size 14
                 , Font.color colourScheme.white
                 , alignTop
                 ]
-                { onChange = \state -> UserClickedSomeLanguageCheckboxSelector state Portugese
+                { checked = languageIsChecked Portuguese
                 , icon = Input.defaultCheckbox
-                , checked = languageIsChecked Portugese
-                , label = Input.labelRight [ Font.size 14 ] (text "Portugese")
+                , label = Input.labelRight [ Font.size 14 ] (text "Portuguese")
+                , onChange = \state -> UserClickedSomeLanguageCheckboxSelector state Portuguese
                 }
             , Input.checkbox
                 [ Font.size 14
                 , Font.color colourScheme.white
                 , alignTop
                 ]
-                { onChange = \state -> UserClickedSomeLanguageCheckboxSelector state Polish
+                { checked = languageIsChecked Polish
                 , icon = Input.defaultCheckbox
-                , checked = languageIsChecked Polish
                 , label = Input.labelRight [ Font.size 14 ] (text "Polish")
+                , onChange = \state -> UserClickedSomeLanguageCheckboxSelector state Polish
                 }
             ]
         ]
 
 
 formatCodeSnippet : CodeFormat -> Model -> Element Msg
-formatCodeSnippet fmt model =
+formatCodeSnippet _ model =
     let
         code =
             render
