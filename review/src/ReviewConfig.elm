@@ -15,13 +15,20 @@ import Docs.ReviewAtDocs
 import NoConfusingPrefixOperator
 import NoDebug.Log
 import NoDebug.TodoOrToString
+import NoDeprecated
 import NoExposingEverything
 import NoImportingEverything
+import NoInconsistentAliases
+import NoLeftPizza
 import NoMissingTypeAnnotation
 import NoMissingTypeAnnotationInLetIn
 import NoMissingTypeExpose
+import NoModuleOnExposedNames
 import NoPrematureLetComputation
+import NoRedundantConcat
+import NoRedundantCons
 import NoSimpleLetBody
+import NoSinglePatternCase
 import NoUnused.CustomTypeConstructorArgs
 import NoUnused.CustomTypeConstructors
 import NoUnused.Dependencies
@@ -39,32 +46,43 @@ import NoUnsortedRecords
 
 config : List Rule
 config =
-    [ Docs.ReviewAtDocs.rule
-    , NoConfusingPrefixOperator.rule
-    , NoDebug.Log.rule
-    , NoDebug.TodoOrToString.rule
-        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
-    , NoExposingEverything.rule
-    , NoImportingEverything.rule []
-    , NoMissingTypeAnnotation.rule
-    , NoMissingTypeExpose.rule
-    , NoSimpleLetBody.rule
-    , NoPrematureLetComputation.rule
-    , NoUnused.CustomTypeConstructors.rule []
-    , NoUnused.CustomTypeConstructorArgs.rule
-    , NoUnused.Dependencies.rule
-    , NoUnused.Exports.rule
-    , NoUnused.Parameters.rule
-    , NoUnused.Patterns.rule
-    , NoUnused.Variables.rule
-    , Simplify.rule Simplify.defaults
-    , NoUnsortedRecords.rule NoUnsortedRecords.defaults
-    , NoUnsortedLetDeclarations.rule
-        (NoUnsortedLetDeclarations.sortLetDeclarations
-            |> NoUnsortedLetDeclarations.usedInExpressionLast
-            |> NoUnsortedLetDeclarations.glueHelpersBefore
-         --|> NoUnsortedLetDeclarations.alphabetically
-        )
-    , NoUnsortedCases.rule NoUnsortedCases.defaults
-
+    [
+        NoDebug.Log.rule
+        , NoDebug.TodoOrToString.rule
+            |> Rule.ignoreErrorsForDirectories [ "tests/" ]
+        , NoSinglePatternCase.rule NoSinglePatternCase.fixInArgument
+        , NoExposingEverything.rule
+        , NoDeprecated.rule NoDeprecated.defaults
+        , NoImportingEverything.rule []
+        , NoMissingTypeAnnotation.rule
+        , NoMissingTypeExpose.rule
+        , NoSimpleLetBody.rule
+        , NoPrematureLetComputation.rule
+        , NoUnused.CustomTypeConstructors.rule []
+        , NoUnused.CustomTypeConstructorArgs.rule
+        , NoUnused.Dependencies.rule
+        , NoUnused.Exports.rule
+        , NoUnused.Variables.rule
+        , NoUnused.Parameters.rule
+        , NoUnused.Patterns.rule
+        , Simplify.rule Simplify.defaults
+        , NoRedundantConcat.rule
+        , NoRedundantCons.rule
+        , NoLeftPizza.rule NoLeftPizza.Any
+        , NoInconsistentAliases.config
+            [ ( "Html.Attributes", "HA" )
+            , ( "Json.Decode", "Decode" )
+            , ( "Json.Encode", "Encode" )
+            ]
+            |> NoInconsistentAliases.noMissingAliases
+            |> NoInconsistentAliases.rule
+        , NoModuleOnExposedNames.rule
+        , NoUnsortedRecords.rule NoUnsortedRecords.defaults
+        , NoUnsortedLetDeclarations.rule
+            (NoUnsortedLetDeclarations.sortLetDeclarations
+                |> NoUnsortedLetDeclarations.usedInExpressionLast
+                |> NoUnsortedLetDeclarations.glueHelpersBefore
+             --|> NoUnsortedLetDeclarations.alphabetically
+            )
+        , NoUnsortedCases.rule NoUnsortedCases.defaults
     ]
