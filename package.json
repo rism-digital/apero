@@ -1,14 +1,13 @@
 {
   "devDependencies": {
+    "@swc/cli": "^0.6.0",
+    "@swc/core": "^1.11.8",
     "chokidar": "^3.5.3",
     "chokidar-cli": "^3.0.0",
-    "elm-optimize-level-2": "^0.3.5",
-    "elm-review": "^2.12.0",
-    "uglify-js": "^3.17.4"
+    "elm-optimize-level-2": "^0.3.5"
   },
   "scripts": {
-    "develop:build": "chokidar 'src/**/*.elm' -c 'clear && elm make src/Apero.elm --debug --output=dist/apero.js'",
-    "production:build": "elm make src/Apero.elm --optimize --output=dist/apero.js",
+    "develop": "chokidar 'src/**/*.elm' -c 'clear && elm make src/Apero.elm --debug --output=dist/apero.js'",
     "production:deploy": "./optimize.sh src/Apero.elm dist/apero.js dist/apero.js"
   },
   "dependencies": {}

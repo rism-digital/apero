@@ -20252,7 +20252,9 @@ var $author$project$Ui$View$viewCode = function (model) {
 			[
 				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
 				$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
-				$mdgriffith$elm_ui$Element$clipY
+				$mdgriffith$elm_ui$Element$clipY,
+				$mdgriffith$elm_ui$Element$htmlAttribute(
+				A2($elm$html$Html$Attributes$style, 'min-height', 'unset'))
 			]),
 		_List_fromArray(
 			[
@@ -21658,8 +21660,6 @@ var $author$project$Ui$View$viewer = function (model) {
 							[
 								$mdgriffith$elm_ui$Element$width(
 								$mdgriffith$elm_ui$Element$px(400)),
-								$mdgriffith$elm_ui$Element$height(
-								$mdgriffith$elm_ui$Element$px(200)),
 								$mdgriffith$elm_ui$Element$Background$color($author$project$Ui$View$colourScheme.white),
 								$mdgriffith$elm_ui$Element$centerY,
 								$mdgriffith$elm_ui$Element$centerX,

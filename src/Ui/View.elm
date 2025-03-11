@@ -67,7 +67,6 @@ viewer model =
                         ]
                         [ column
                             [ width (px 400)
-                            , height (px 200)
                             , Background.color colourScheme.white
                             , centerY
                             , centerX
@@ -177,13 +176,13 @@ viewCode model =
         [ width fill
         , height fill
         , clipY
+        , htmlAttribute (HA.style "min-height" "unset")
         ]
         [ column
             [ width fill
             , height fill
             , Font.size 14
             , scrollbars
-            , htmlAttribute (HA.style "min-height" "unset")
             , paddingXY 10 0
             ]
             [ html
