@@ -8,6 +8,7 @@
             "pure_getters": true,
             "unsafe_comps": true,
             "unsafe": true,
+            "drop_console": true
         },
         "mangle": {
             "keep_fnames": false,
