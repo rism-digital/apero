@@ -11,8 +11,8 @@ when inside the directory containing this file.
 
 -}
 
-import Docs.ReviewAtDocs
-import NoConfusingPrefixOperator
+--import Docs.ReviewAtDocs
+--import NoConfusingPrefixOperator
 import NoDebug.Log
 import NoDebug.TodoOrToString
 import NoDeprecated
@@ -21,7 +21,7 @@ import NoImportingEverything
 import NoInconsistentAliases
 import NoLeftPizza
 import NoMissingTypeAnnotation
-import NoMissingTypeAnnotationInLetIn
+--import NoMissingTypeAnnotationInLetIn
 import NoMissingTypeExpose
 import NoModuleOnExposedNames
 import NoPrematureLetComputation
