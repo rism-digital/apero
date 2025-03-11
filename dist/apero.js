@@ -20301,6 +20301,8 @@ var $mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
 			'color',
 			fontColor));
 };
+var $mdgriffith$elm_ui$Internal$Model$Bottom = {$: 'Bottom'};
+var $mdgriffith$elm_ui$Element$alignBottom = $mdgriffith$elm_ui$Internal$Model$AlignY($mdgriffith$elm_ui$Internal$Model$Bottom);
 var $mdgriffith$elm_ui$Element$Font$family = function (families) {
 	return A2(
 		$mdgriffith$elm_ui$Internal$Model$StyleClass,
@@ -20420,7 +20422,8 @@ var $author$project$Ui$View$formatCodeSnippet = F2(
 				[
 					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
 					$mdgriffith$elm_ui$Element$height(
-					$mdgriffith$elm_ui$Element$px(200))
+					$mdgriffith$elm_ui$Element$px(200)),
+					$mdgriffith$elm_ui$Element$alignBottom
 				]),
 			_List_fromArray(
 				[
@@ -21564,6 +21567,7 @@ var $author$project$Ui$View$viewToolbar = function (model) {
 						_List_fromArray(
 							[
 								$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+								$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
 								$mdgriffith$elm_ui$Element$alignTop
 							]),
 						_List_fromArray(
@@ -21608,16 +21612,16 @@ var $author$project$Ui$View$viewToolbar = function (model) {
 													$mdgriffith$elm_ui$Element$text('JSON-LD')),
 													A2(
 													$mdgriffith$elm_ui$Element$Input$option,
+													$author$project$Core$MarcXML,
+													$mdgriffith$elm_ui$Element$text('MARCXML')),
+													A2(
+													$mdgriffith$elm_ui$Element$Input$option,
 													$author$project$Core$Turtle,
-													$mdgriffith$elm_ui$Element$text('Turtle')),
+													$mdgriffith$elm_ui$Element$text('Turtle (experimental)')),
 													A2(
 													$mdgriffith$elm_ui$Element$Input$option,
 													$author$project$Core$NTriples,
-													$mdgriffith$elm_ui$Element$text('N-triples')),
-													A2(
-													$mdgriffith$elm_ui$Element$Input$option,
-													$author$project$Core$MarcXML,
-													$mdgriffith$elm_ui$Element$text('MARCXML'))
+													$mdgriffith$elm_ui$Element$text('N-triples (experimental)'))
 												]),
 											selected: $elm$core$Maybe$Just(model.requestType)
 										})
@@ -21629,10 +21633,10 @@ var $author$project$Ui$View$viewToolbar = function (model) {
 								} else {
 									return $author$project$Ui$View$viewLanguageRequestSelector(model);
 								}
-							}()
+							}(),
+								A2($author$project$Ui$View$formatCodeSnippet, $author$project$Core$CURL, model)
 							]))
-					])),
-				A2($author$project$Ui$View$formatCodeSnippet, $author$project$Core$CURL, model)
+					]))
 			]));
 };
 var $author$project$Ui$View$viewer = function (model) {

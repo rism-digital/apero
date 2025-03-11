@@ -1,7 +1,7 @@
 module Ui.View exposing (RequestComponents, view)
 
 import Core exposing (BodyView(..), CodeFormat(..), Language(..), LanguageSelection(..), Model, Msg(..), RequestType(..), Response(..), langToLangCode, requestTypeToMimeType)
-import Element exposing (Color, Element, alignRight, alignTop, centerX, centerY, clipY, column, el, fill, fromRgb255, height, html, htmlAttribute, inFront, none, padding, paddingXY, paragraph, pointer, px, rgb255, row, scrollbars, spacing, text, textColumn, width)
+import Element exposing (Color, Element, alignBottom, alignRight, alignTop, centerX, centerY, clipY, column, el, fill, fromRgb255, height, html, htmlAttribute, inFront, none, padding, paddingXY, paragraph, pointer, px, rgb255, row, scrollbars, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
@@ -217,6 +217,7 @@ viewToolbar model =
             ]
             [ column
                 [ width fill
+                , height fill
                 , alignTop
                 ]
                 [ row
@@ -242,9 +243,9 @@ viewToolbar model =
                         , onChange = UserClickedApiFormatRadioButton
                         , options =
                             [ Input.option JsonLd (text "JSON-LD")
-                            , Input.option Turtle (text "Turtle")
-                            , Input.option NTriples (text "N-triples")
                             , Input.option MarcXML (text "MARCXML")
+                            , Input.option Turtle (text "Turtle (experimental)")
+                            , Input.option NTriples (text "N-triples (experimental)")
                             ]
                         , selected = Just model.requestType
                         }
@@ -255,9 +256,9 @@ viewToolbar model =
 
                     _ ->
                         viewLanguageRequestSelector model
+                , formatCodeSnippet CURL model
                 ]
             ]
-        , formatCodeSnippet CURL model
         ]
 
 
@@ -418,6 +419,7 @@ formatCodeSnippet _ model =
     row
         [ width fill
         , height (px 200)
+        , alignBottom
         ]
         [ textColumn
             [ width fill
