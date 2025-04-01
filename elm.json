@@ -14,8 +14,8 @@
             "jzxhuang/http-extras": "2.1.0",
             "lukewestby/elm-template": "3.0.0",
             "mdgriffith/elm-ui": "1.1.8",
-            "pablohirafuji/elm-syntax-highlight": "3.6.0",
-            "the-sett/elm-pretty-printer": "3.1.0"
+            "pablohirafuji/elm-syntax-highlight": "3.7.1",
+            "the-sett/elm-pretty-printer": "3.1.1"
         },
         "indirect": {
             "elm/bytes": "1.0.8",
